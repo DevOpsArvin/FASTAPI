@@ -1,0 +1,378 @@
+<html><head>
+    <title>Search Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <script>
+        // Disable browser back keys
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Search Page</h1>
+        <form method="POST" action="/search">
+            <div class="form-group">
+                <label for="station">Search Station:</label>
+                <input type="text" id="station" name="station" required="" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Search" class="btn btn-primary">
+            </div>
+        </form>
+
+        
+        <h2>Search Results</h2>
+
+                  <div class="modal" id="UGP-008">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal P-008</h4>
+                          <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          Modal body..
+                        </div>
+                        
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <form action="/process-UGP-008" method="post"></form>
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal" id="6FP-008">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal P-008</h4>
+                          <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          Modal body..
+                        </div>
+                        
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <form action="/process-6FP-008" method="post"></form>
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="modal" id="7FP-008">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal P-008</h4>
+                          <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          Modal body..
+                        </div>
+                        
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <form action="/process-7FP-008" method="post"></form>
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal" id="8FP-008">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal P-008</h4>
+                          <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          Modal body..
+                        </div>
+                        
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <form action="/process-8FP-008" method="post"></form>
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal" id="9FP-008">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal P-008</h4>
+                          <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          Modal body..
+                        </div>
+                        
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <form action="/process-9FP-008" method="post"></form>
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal" id="10FP-008">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal P-008</h4>
+                          <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          Modal body..
+                        </div>
+                        
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <form action="/process-10FP-008" method="post"></form>
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal" id="11FP-008">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">Modal P-008</h4>
+                          <button type="button" class="close" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                          Modal body..
+                        </div>
+                        
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                          <form action="/process-11FP-008" method="post"></form>
+                            <button type="submit" class="btn btn-primary">Process</button>
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Floor</th>                   
+                    <th>Station</th>
+                    <th>Port</th>
+                    <th>Interface</th>
+                    <th>Info2</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>UG</td>                    
+                    <td>P-008</td>
+                    <td>204</td>
+                    <td>G1/0/15</td>
+                    <td>E- Learning Room</td>
+                    <td>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#UGP-008">
+                        clear
+                      </button>
+
+                    </td>
+                </tr>
+                
+                  <!-- The Modal1 -->
+                  
+                  <!-- /The Modal -->
+
+                
+                <tr>
+                    <td>6F</td>                    
+                    <td>P-008</td>
+                    <td>69</td>
+                    <td>G1/0/15</td>
+                    <td>POD 10C</td>
+                    <td>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#6FP-008">
+                        clear
+                      </button>
+
+                    </td>
+                </tr>
+                
+                  <!-- The Modal1 -->
+                  
+                  <!-- /The Modal -->
+
+                
+                <tr>
+                    <td>7F</td>                    
+                    <td>P-008</td>
+                    <td>85</td>
+                    <td>G1/0/15</td>
+                    <td>na</td>
+                    <td>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#7FP-008">
+                        clear
+                      </button>
+
+                    </td>
+                </tr>
+                
+                  <!-- The Modal1 -->
+                  
+                  <!-- /The Modal -->
+
+                
+                <tr>
+                    <td>8F</td>                    
+                    <td>P-008</td>
+                    <td>162</td>
+                    <td>G1/0/15</td>
+                    <td>na</td>
+                    <td>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#8FP-008">
+                        clear
+                      </button>
+
+                    </td>
+                </tr>
+                
+                  <!-- The Modal1 -->
+                  
+                  <!-- /The Modal -->
+
+                
+                <tr>
+                    <td>9F</td>                    
+                    <td>P-008</td>
+                    <td>167</td>
+                    <td>G1/0/15</td>
+                    <td>Kiosk PC</td>
+                    <td>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#9FP-008">
+                        clear
+                      </button>
+
+                    </td>
+                </tr>
+                
+                  <!-- The Modal1 -->
+                  
+                  <!-- /The Modal -->
+
+                
+                <tr>
+                    <td>10F</td>                    
+                    <td>P-008</td>
+                    <td>171</td>
+                    <td>G1/0/15</td>
+                    <td>xxx</td>
+                    <td>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#10FP-008">
+                        clear
+                      </button>
+
+                    </td>
+                </tr>
+                
+                  <!-- The Modal1 -->
+                  
+                  <!-- /The Modal -->
+
+                
+                <tr>
+                    <td>11F</td>                    
+                    <td>P-008</td>
+                    <td>187</td>
+                    <td>G1/0/15</td>
+                    <td>POD9-A</td>
+                    <td>
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#11FP-008">
+                        clear
+                      </button>
+
+                    </td>
+                </tr>
+                
+                  <!-- The Modal1 -->
+                  
+                  <!-- /The Modal -->
+
+                
+            </tbody>
+        </table>
+        
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+</body></html>
