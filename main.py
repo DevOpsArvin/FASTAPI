@@ -12,6 +12,7 @@ from fastapi import Response
 import textwrap
 
 import sqlite3
+
 from netmiko import (
     ConnectHandler,
     NetmikoTimeoutException,
@@ -63,7 +64,6 @@ def perform_search(query):
 
     cursor.close()
     conn.close()
-    print(f"125 Perform Search")
 
     return results
 
@@ -114,16 +114,23 @@ def validate_login(username, password, device, commands):
     try:
         if (username == "aa" and password == "aa") or (username == "bb" and password == "bb") or (username == "cc" and password == "cc"):
             # Code to execute if the conditions are met
-            print("Logged in successfully!")
+            
 
             # Add the logged-in user to UsersLoggedIn dictionary
             UsersLoggedIn[username] = TokenAccount(username, password)
 
             # Print all account instances
             for account_instance in TokenAccount.instances.values():
-                print(f"line102=======: {account_instance.username} {account_instance.password}")
+                #print(f"User :{account_instance.username}  Password:{account_instance.password}")
 
-            print(f"length ====== {len(UsersLoggedIn)}")
+                loginUsr = f"Account {account_instance.username} is accessing to Login... +"
+                print("+" * (len(loginUsr) + 3))
+                print(f"+  {loginUsr}")
+
+                print("+Logged in successfully!")
+                print("+" * (len(loginUsr) + 3))
+                print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
+                print("+" * (len(loginUsr) + 3))
 
             #account_instance = UsersLoggedIn.get(username)
             #if account_instance:
@@ -135,7 +142,10 @@ def validate_login(username, password, device, commands):
             
             if UsersLoggedIn.get(username):
                 password = UsersLoggedIn.get(username).password
-                print(f"line116=======: {username} {password}")
+                
+                #print(f"User :{username} {password}")
+                print(f"User :{username} STATUS: LOGGED IN")
+
             else:
                 print("Account not found.")
 
@@ -168,25 +178,66 @@ def login(username: str, password: str):
     return validate_login(username, password, device, [])
 
 
+
+def get_mapping_results(station):
+    query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
+    results = perform_search(query)
+    return results
+
+
+def get_vlan_results():
+    query = f"SELECT * FROM vlans"
+    results = perform_search(query)
+    return results
+
+
+def get_voice_results():
+    query = f"SELECT * FROM voices"
+    results = perform_search(query)
+    return results
+
+
+
+
+
+
+
+
+
 #===================================================================
 @app.get("/")
 async def home(request: Request):
+    print("+++++++++++++++++++++++++++++++++++")
+    print("+  User is preparing to Login...  +")
+    print("+++++++++++++++++++++++++++++++++++")
     return templates.TemplateResponse("login.html", {"request": request})
 
 
 #===================================================================
 @app.post("/login")
-async def process_login(request: Request, username: str = Form(...), password: str = Form(...)):
-    print(f"107 LOGIN====== ")
-
+async def process_login(
+        request: Request, 
+        username: str = Form(...), 
+        password: str = Form(...)
+        ):
 
     result = login(username, password)
-    print(f"107 LOGIN Result======{result} ")
-
+    
     if result:
-        return templates.TemplateResponse("search.html", {"request": request, "loginU_var": username})
+        return templates.TemplateResponse(
+            "search.html", 
+            {   "request": request, 
+                "loginU_var": username
+            }
+        )
     else:
-        return templates.TemplateResponse("login.html", {"request": request, "error_message": error})
+        return templates.TemplateResponse(
+            "login.html", 
+            {
+                "request": request, 
+                "error_message": error
+            }
+        )
 
 
 
@@ -194,31 +245,29 @@ async def process_login(request: Request, username: str = Form(...), password: s
 
 #===================================================================
 @app.post("/search")
-async def search(request: Request, station: str = Form(...), loginU_var: str = Form(...)):
+async def search(
+        request: Request, 
+        station: str = Form(...), 
+        loginU_var: str = Form(...)
+        ):
+
     # Connect to the SQLite database
-    print(f"119 SEARCH====== {loginU_var}")
-
-    #do query >> def perform_search(query):
-    query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
-    results = perform_search(query)
-
-
-    query = f"SELECT * FROM vlans"
-    resultsVLAN = perform_search(query)
-
-
-    query = f"SELECT * FROM voices"
-    resultsVoice = perform_search(query)
-
-    # Pass the results and search input to the template
-    print(f"length 131====== {len(UsersLoggedIn)}")
+    results = get_mapping_results(station)
+    resultsVLAN = get_vlan_results()
+    resultsVoice = get_voice_results()
 
 
     # Pass the results, search input, and loginU_var to the template
     if len(UsersLoggedIn) != 0:
         return templates.TemplateResponse(
             "search.html",
-            {"request": request, "results": results, "resultsVLAN": resultsVLAN, "resultsVoice": resultsVoice,"station": station, "loginU_var": loginU_var}
+            {   "request": request, 
+                "results": results, 
+                "station": station, 
+                "loginU_var": loginU_var,
+                "resultsVLAN": resultsVLAN,
+                "resultsVoice": resultsVoice  
+            }
         )
     else:
         print("You must login first.")
@@ -231,38 +280,55 @@ async def search(request: Request, station: str = Form(...), loginU_var: str = F
 #@app.post("/process_modal_form")
 #===================================================================
 @app.post("/process_modal_form1")
-async def process_modal_form(request: Request, station: str = Form(...),port: str = Form(...), loginU_var: str = Form(...)):
-    print("Modal 1 Pressed")
-    print("Modal form submitted")
+async def process_modal_form(
+                request: Request, 
+                loginU_var: str = Form(...),   
+                idrow: str = Form(...),
+                floor: str = Form(...),
+                station: str = Form(...),                           
+                port: str = Form(...), 
+                interface: str = Form(...)
+                ):
+    
 
+    print("==========================================================")
+    print("Process: CLEAR PORT")
+    print("-----------------")
+    print("ID:", idrow)
     print("Station:", station)
     print("Port:", port)
-    print("Logged in as:", loginU_var)
+    print("Interface:", interface)
+    print("-----------------")
+    print("Clear Port Performed by :", loginU_var)
+    print("==========================================================")
 
 
-
-    #do query >> def perform_search(query):
-    query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
-    results = perform_search(query)
-
-
-
-
-    # Process the form data as needed
-    
     username = loginU_var
-
     account_instance = UsersLoggedIn.get(username)
     if account_instance:
         password = account_instance.password
-        print(f"180 Password is : {username} {password}")
     else:
         print("Account not found.")
 
+    results = get_mapping_results(station)
+    resultsVLAN = get_vlan_results()
+    resultsVoice = get_voice_results()
 
+
+    # Process the form data as needed
     return templates.TemplateResponse(
         "search.html",
-        {"request": request, "results": results,  "station": station, "loginU_var": loginU_var}
+        {   "request": request, 
+            "results": results, 
+            "idrow": idrow, 
+            "floor": floor, 
+            "station": station, 
+            "port": port, 
+            "interface": interface, 
+            "loginU_var": loginU_var,
+            "resultsVLAN": resultsVLAN,
+            "resultsVoice": resultsVoice           
+        }
 
     )
 
@@ -270,66 +336,85 @@ async def process_modal_form(request: Request, station: str = Form(...),port: st
 #===================================================================
 @app.post("/process_modal_form2")
 async def process_modal_form(
-                request: Request, 
+                request: Request,
+                loginU_var: str = Form(...),  
+                idrow: str = Form(...),
+                floor: str = Form(...),
                 station: str = Form(...),
                 port: str = Form(...), 
-                interface: str = Form(...), 
-                loginU_var: str = Form(...), 
-                VlanCustom: str = Form(...)):
+                interface: str = Form(...),
+                VLANCustom: str = Form(...)
+                ):
 
-    print("Modal VLAN Pressed")
-    print("Modal form submitted")
+    print("==========================================================")
+    print("Process: Change VLAN")
+    print("-----------------")
+    print("ID:", idrow)
     print("Station:", station)
     print("Port:", port)
     print("Interface:", interface)
-    print("Logged in as:", loginU_var)
-    print("VLAN:", VlanCustom)
+    print("Change to VLAN:", VLANCustom)
+    print("-----------------")
+    print("Change VLAN Performed by :", loginU_var)
+    print("==========================================================")
     
-
-
 
     username = loginU_var
     if UsersLoggedIn.get(username):
         password = UsersLoggedIn.get(username).password
-        print(f"line116=======: {username} {password}")
+        #print(f"line116=======: {username} {password}")
     else:
         print("Account not found.")
 
-
-
-    #do query >> def perform_search(query):
-    query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
-    results = perform_search(query)
-
-    
-    query = f"SELECT * FROM vlans"
-    resultsVLAN = perform_search(query)
+    results = get_mapping_results(station)
+    resultsVLAN = get_vlan_results()
+    resultsVoice = get_voice_results()
 
     # Process the form data as needed
 
     return templates.TemplateResponse(
         "search.html",
-        {"request": request, "results": results, 
-            "resultsVLAN": resultsVLAN, "station": station, "interface": interface,
-            "loginU_var": loginU_var}
-
+        {   "request": request, 
+            "results": results, 
+            "idrow": idrow, 
+            "floor": floor, 
+            "station": station, 
+            "port": port, 
+            "interface": interface, 
+            "loginU_var": loginU_var,
+            "resultsVLAN": resultsVLAN,
+            "resultsVoice": resultsVoice           
+        }
     )
 
 
 #===================================================================
 @app.post("/process_modal_form3")
-async def process_modal_form(request: Request, 
+async def process_modal_form(
+                request: Request,
+                loginU_var: str = Form(...),  
+                idrow: str = Form(...),
+                floor: str = Form(...),
                 station: str = Form(...),
                 port: str = Form(...), 
-                loginU_var: str = Form(...), 
-                VoiceCustom: str = Form(...)):
+                interface: str = Form(...),
+                VoiceCustom: str = Form(...)
+                ):
 
-    print("Modal Voice Pressed")
-    print("Modal form submitted")
+
+
+    print("==========================================================")
+    print("Process: Change Voice")
+    print("-----------------")
+    print("ID:", idrow)
     print("Station:", station)
     print("Port:", port)
-    print("Logged in as:", loginU_var)
-    print("Voice:", VoiceCustom)
+    print("Interface:", interface)
+    print("Change to Voice:", VoiceCustom)
+    print("-----------------")
+    print("Change Voice Performed by :", loginU_var)
+    print("==========================================================")
+
 
     username = loginU_var
     if UsersLoggedIn.get(username):
@@ -338,20 +423,26 @@ async def process_modal_form(request: Request,
     else:
         print("Account not found.")
 
-    #do query >> def perform_search(query):
-    query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
-    results = perform_search(query)
-
-    
-    query = f"SELECT * FROM voices"
-    resultsVoice = perform_search(query)
+    results = get_mapping_results(station)
+    resultsVLAN = get_vlan_results()
+    resultsVoice = get_voice_results()
 
     # Process the form data as needed
 
     return templates.TemplateResponse(
         "search.html",
-        {"request": request, "results": results, "resultsVoice": resultsVoice, "station": station, "loginU_var": loginU_var}
+        {   "request": request, 
+            "results": results, 
+            "idrow": idrow, 
+            "station": station, 
+            "port": port, 
+            "interface": interface, 
+            "loginU_var": loginU_var,
+            "resultsVLAN": resultsVLAN,
+            "resultsVoice": resultsVoice           
+        }
     )
+
 
 
 
