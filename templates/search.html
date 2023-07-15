@@ -151,6 +151,7 @@
                                 <input type="hidden" name="station" value="{{ row[1] }}">
                                 <input type="hidden" name="port" value="{{ row[2] }}">
                                 <input type="hidden" name="interface" value="{{ row[3] }}">
+                                <input type="hidden" name="location" value="{{ row[6] }}">
                                 <input type="hidden" name="loginU_var" value="{{ loginU_var }}">
          
                                 <div class="modal-footer">
@@ -183,65 +184,64 @@
                       </div>
                       <div class="modal-body">
 
-                            <div class="d-grid gap-2 col-10 mx-auto">
-                                <div class="row g-2">
-                                    <div class="col-sm">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[0] }}" readonly>
-                                            <label for="floatingInput">IDRow</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[4] }}" readonly>
-                                            <label for="floatingInput">Floor</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[1] }}" readonly>
-                                            <label for="floatingInput">Station</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row g-2">
-                                    <div class="col-sm">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingInput" value="10.16.0.{{ row[2] }}" readonly>
-                                            <label for="floatingInput">Host</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[3] }}" readonly>
-                                            <label for="floatingInput">Interface</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row g-2">
-                                    <div class="col-sm">
-                                        <div class="form-floating mb-3">
-                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[6] }}" readonly>
-                                            <label for="floatingInput">Location</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>                          
-
-
                             <form method="POST" action="/process_modal_form2">
                                 <input type="hidden" name="floor" value="{{ row[4] }}">
                                 <input type="hidden" name="idrow" value="{{ row[0] }}">
                                 <input type="hidden" name="station" value="{{ row[1] }}">
                                 <input type="hidden" name="port" value="{{ row[2] }}">
                                 <input type="hidden" name="interface" value="{{ row[3] }}">
+                                <input type="hidden" name="location" value="{{ row[6] }}">
                                 <input type="hidden" name="loginU_var" value="{{ loginU_var }}">
          
+    <div class="d-grid gap-2 col-10 mx-auto">
+        <div class="row g-2">
+            <div class="col-sm">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingInput" value="{{ row[0] }}" readonly>
+                    <label for="floatingInput">IDRow</label>
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingInput" value="{{ row[4] }}" readonly>
+                    <label for="floatingInput">Floor</label>
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingInput" value="{{ row[1] }}" readonly>
+                    <label for="floatingInput">Station</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2">
+            <div class="col-sm">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingInput" value="10.16.0.{{ row[2] }}" readonly>
+                    <label for="floatingInput">Host</label>
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingInput" value="{{ row[3] }}" readonly>
+                    <label for="floatingInput">Interface</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2">
+            <div class="col-sm">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingInput" value="{{ row[6] }}" readonly>
+                    <label for="floatingInput">Location</label>
+                </div>
+            </div>
+        </div>
+    </div>
 
                                 <div class="card card-body">
                                 <div class="form-floating">
@@ -395,6 +395,7 @@
                                 <input type="hidden" name="station" value="{{ row[1] }}">
                                 <input type="hidden" name="port" value="{{ row[2] }}">
                                 <input type="hidden" name="interface" value="{{ row[3] }}">
+                                <input type="hidden" name="location" value="{{ row[6] }}">
                                 <input type="hidden" name="loginU_var" value="{{ loginU_var }}">
 
                                 <div class="card card-body">
