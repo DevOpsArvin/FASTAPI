@@ -70,7 +70,7 @@ def perform_search(query):
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def xvalidate_login(username, password, device, commands):
+def validate_login(username, password, device, commands):
     result = {}
     try:
 
@@ -83,9 +83,6 @@ def xvalidate_login(username, password, device, commands):
                 output = ssh.send_command(command)
                 result[command] = output
 
-        print("Login Successfull - Proceed to Search")
-        print(f"66=======: {username} {password}")
-
         # Add the logged-in user to UsersLoggedIn dictionary
         UsersLoggedIn[username] = TokenAccount(username, password)
 
@@ -93,12 +90,23 @@ def xvalidate_login(username, password, device, commands):
         for account_instance in TokenAccount.instances.values():
             print(f"73=======: {account_instance.username} {account_instance.password}")
 
-        print(f"length ====== {len(UsersLoggedIn)}")
+            loginUsr = f"Account {account_instance.username} is accessing to Login... +"
+            print("+" * (len(loginUsr) + 3))
+            print(f"+  {loginUsr}")
+
+            print("+Logged in successfully!")
+            print("+" * (len(loginUsr) + 3))
+            print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
+            print("+" * (len(loginUsr) + 3))
+
 
         account_instance = UsersLoggedIn.get(username)
         if account_instance:
             password = account_instance.password
-            print(f"79=======: {username} {password}")
+            
+            #print(f"79=======: {username} {password}")
+            print(f"User :{username} STATUS: LOGGED IN")
+            
         else:
             print("Account not found.")
 
@@ -110,7 +118,7 @@ def xvalidate_login(username, password, device, commands):
         return False, str(error)
 
 
-def validate_login(username, password, device, commands):
+def xvalidate_login(username, password, device, commands):
     try:
         if (username == "aa" and password == "aa") or (username == "bb" and password == "bb") or (username == "cc" and password == "cc"):
             # Code to execute if the conditions are met
