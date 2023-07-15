@@ -1,5 +1,3 @@
-#arvin 7/15/2023
-
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -181,6 +179,71 @@ def login(username: str, password: str):
 
 
 
+
+def modal_selectedRow(col0,col1,co2,col3,col4,col5):
+
+
+    modal_row = """
+            <div class="d-grid gap-2 col-10 mx-auto">
+                <div class="row g-2">
+                    <div class="col-sm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" value="{{ col0 }}" readonly>
+                            <label for="floatingInput">IDRow</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" value="{{ col4 }}" readonly>
+                            <label for="floatingInput">Floor</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" value="{{ col1 }}" readonly>
+                            <label for="floatingInput">Station</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-sm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" value="10.16.0.{{ col2 }}" readonly>
+                            <label for="floatingInput">Host</label>
+                        </div>
+                    </div>
+
+                    <div class="col-sm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" value="{{ col3 }}" readonly>
+                            <label for="floatingInput">Interface</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-sm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="floatingInput" value="{{ col5 }}" readonly>
+                            <label for="floatingInput">Location</label>
+                        </div>
+                    </div>
+                </div>
+            </div>      
+
+        """
+
+    return modal_row
+
+
+
+
+
+
+
 def get_mapping_results(station):
     query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
     results = perform_search(query)
@@ -258,6 +321,9 @@ async def search(
     resultsVLAN = get_vlan_results()
     resultsVoice = get_voice_results()
 
+    print(results[0])
+
+    #view_modal = modal_selectedRow(idrow,station,port,interface,floor,location)
 
     # Pass the results, search input, and loginU_var to the template
     if len(UsersLoggedIn) != 0:
@@ -268,7 +334,8 @@ async def search(
                 "station": station, 
                 "loginU_var": loginU_var,
                 "resultsVLAN": resultsVLAN,
-                "resultsVoice": resultsVoice  
+                "resultsVoice": resultsVoice, 
+                #"viewModal": viewModal
             }
         )
     else:
@@ -289,7 +356,8 @@ async def process_modal_form(
                 floor: str = Form(...),
                 station: str = Form(...),                           
                 port: str = Form(...), 
-                interface: str = Form(...)
+                interface: str = Form(...),
+                location: str = Form(...)
                 ):
     
 
@@ -300,6 +368,8 @@ async def process_modal_form(
     print("Station:", station)
     print("Port:", port)
     print("Interface:", interface)
+    print("Floor:", floor)
+    print("Location:", location)
     print("-----------------")
     print("Clear Port Performed by :", loginU_var)
     print("==========================================================")
@@ -317,6 +387,9 @@ async def process_modal_form(
     resultsVoice = get_voice_results()
 
 
+
+
+
     # Process the form data as needed
     return templates.TemplateResponse(
         "search.html",
@@ -329,7 +402,8 @@ async def process_modal_form(
             "interface": interface, 
             "loginU_var": loginU_var,
             "resultsVLAN": resultsVLAN,
-            "resultsVoice": resultsVoice           
+            "resultsVoice": resultsVoice
+
         }
 
     )
@@ -345,6 +419,7 @@ async def process_modal_form(
                 station: str = Form(...),
                 port: str = Form(...), 
                 interface: str = Form(...),
+                location: str = Form(...),
                 VLANCustom: str = Form(...)
                 ):
 
@@ -355,6 +430,8 @@ async def process_modal_form(
     print("Station:", station)
     print("Port:", port)
     print("Interface:", interface)
+    print("Floor:", floor)
+    print("Location:", location)
     print("Change to VLAN:", VLANCustom)
     print("-----------------")
     print("Change VLAN Performed by :", loginU_var)
@@ -412,6 +489,8 @@ async def process_modal_form(
     print("Station:", station)
     print("Port:", port)
     print("Interface:", interface)
+    print("Floor:", floor)
+    print("Location:", location)
     print("Change to Voice:", VoiceCustom)
     print("-----------------")
     print("Change Voice Performed by :", loginU_var)
@@ -457,3 +536,4 @@ if __name__ == "__main__":
 
     #uvicorn.run(app, host="0.0.0.0", port=8886)
 #   uvicorn main:app --reload --host 0.0.0.0 --port 8886
+# arvin 7/15/2023
