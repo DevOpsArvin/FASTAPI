@@ -183,11 +183,18 @@ def login(username: str, password: str):
         "username": username,
         "password": password,
     }
+    
+    Xdevice = {
+        "device_type": "cisco_ios",
+        "host": "10.16.0.80",
+        "username": username,
+        "password": password,
+    }
     return validate_login(username, password, device, [])
 
 
 
-
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def modal_selectedRow(col0,col1,co2,col3,col4,col5):
 
 
@@ -251,19 +258,19 @@ def modal_selectedRow(col0,col1,co2,col3,col4,col5):
 
 
 
-
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_mapping_results(station):
     query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
     results = perform_search(query)
     return results
 
-
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_vlan_results():
     query = f"SELECT * FROM vlans"
     results = perform_search(query)
     return results
 
-
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_voice_results():
     query = f"SELECT * FROM voices"
     results = perform_search(query)
@@ -286,6 +293,16 @@ async def home(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
+
+
+def separate_boolean_from_tuple(tuple_to_separate):
+
+    boolean_element = tuple_to_separate[0]
+    tuple_without_boolean = tuple_to_separate[1:]
+
+    return boolean_element, tuple_without_boolean
+
+
 #===================================================================
 @app.post("/login")
 async def process_login(
@@ -295,8 +312,10 @@ async def process_login(
         ):
 
     result = login(username, password)
-    
-    if result:
+
+    #print(f"306 ---- {type(result)}")
+
+    if isinstance(result, bool):
         return templates.TemplateResponse(
             "search.html", 
             {   "request": request, 
@@ -304,11 +323,16 @@ async def process_login(
             }
         )
     else:
+        tuple_to_separate = result
+        boolean_element, tuple_without_boolean = separate_boolean_from_tuple(tuple_to_separate)
+
+        result = tuple_without_boolean.splitlines()
+        
         return templates.TemplateResponse(
             "login.html", 
             {
                 "request": request, 
-                "error_message": error
+                "error_message": result
             }
         )
 
