@@ -50,7 +50,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p id="errorMessage">{{ error_message }}</p>
+                    <p id="errorMessage">{{ error_message | replace('\n', '<br>') }}</p>
                 </div>
             </div>
         </div>
