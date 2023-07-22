@@ -79,7 +79,7 @@
                 </tr>
 
 
-                <!-- Modal 1 TO PROCESS -->
+                <!-- Modal 1 Clear Port-->
                 <div class="modal fade" id="{{ row[0] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
@@ -173,12 +173,12 @@
                 </div>
 
 
-                <!-- Process Modal 2 VLAN -->
+                <!-- Modal 2 Change VLAN -->
                 <div class="modal fade" id="vlan_{{ row[0] }}" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">To Process...</h5>
+                        <h5 class="modal-title" id="staticBackdropLabel">Process Change VLAN</h5>
                         
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
@@ -313,6 +313,7 @@
                         } else {
                             // The key is not numeric or the value is not between 0 and 4095.
                             alert("The value that you entered is not between 0 and 4095 or Not a Numeric Value.");
+                            alert("Please Enter the VLAN ID..");
                             document.getElementById("submitButton_{{ row[0] }}").disabled = true;
                             document.getElementById("VLANCustom_{{ row[0] }}").value = "";
                             
@@ -326,13 +327,12 @@
 
 
 
-                <!-- Process Modal 3 VOICE -->
-
+                <!-- Modal 3 Change VOICE -->
                 <div class="modal fade" id="voice_{{ row[0] }}" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Voice To Process...</h5>
+                        <h5 class="modal-title" id="staticBackdropLabel">Process Change Voice</h5>
                         
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
