@@ -264,10 +264,14 @@ async def process_login(
 
     # Device information
 
-    #hostname = "10.16.0.227"
-    hostname = "sandbox-iosxr-1.cisco.com"
+    hostname = "10.16.0.80"
+    #hostname = "sandbox-iosxr-1.cisco.com"
+
     #username = 'admin'
     #password = 'C1sco12345'
+
+    #username = 'a.acosta'
+    #password = '!@Rvin#8569'
 
     
     netmiko_manager = NetmikoManager(hostname, username, password)
@@ -294,7 +298,7 @@ async def process_login(
         account_instance = UsersLoggedIn.get(username)
         if account_instance:
             password = account_instance.password
-            print(f"368 =======: {username} {password}")
+            print(f"297 =======: {username} {password}")
             print(f"User :{username} STATUS: LOGGED IN")
             
         else:
@@ -336,6 +340,7 @@ async def search(
     resultsVoice = get_voice_results()
 
     print(results[0])
+    print(results)
 
     #view_modal = modal_selectedRow(idrow,station,port,interface,floor,location)
 
@@ -356,6 +361,14 @@ async def search(
         print("You must login first.")
         return templates.TemplateResponse("login.html", {"request": request})
 
+
+#===================================================================
+def process_request(hostname, username, password,interface, config_commands):
+    netmiko_manager = NetmikoManager(hostname, username, password)
+    netmiko_manager.connect()
+    
+    netmiko_manager.doit(interface, config_commands)
+    netmiko_manager.disconnect()
 
 #===================================================================
 @app.post("/process_modal_form1")
@@ -399,6 +412,23 @@ async def process_modal_form(
 
     #result = login(username, password)
     print(f"CLEAR PORT CODE HERE....")
+
+    hostname = f"10.16.0.{port}"
+    username = loginU_var
+    password = password
+    interface = interface
+    
+    print(f"420 ---  {hostname}")
+
+    # Clear Port
+    config_commands = [
+        f"interface {interface}",
+        "shutdown",
+        "no shutdown",
+        "exit",  # Exit interface configuration mode
+    ]
+
+    process_request(hostname, username, password, interface, config_commands)
 
     
     results = get_mapping_results(station)
@@ -461,6 +491,29 @@ async def process_modal_form(
         #print(f"line116=======: {username} {password}")
     else:
         print("Account not found.")
+
+
+    print(f"CHANGE VLAN CODE HERE....")
+
+    hostname = f"10.16.0.{port}"
+    username = loginU_var
+    password = password
+    interface = interface
+    vlanID = VLANCustom
+    
+    print(f"504 ---  {hostname}")
+    print(f"505 ---  {VLANCustom}")
+
+    # Clear Port
+    config_commands = [
+        f"interface {interface}",
+        f"switchport access vlan {vlanID}",
+        "shutdown",
+        "no shutdown",
+        "end",  # Exit interface configuration mode
+    ]
+
+    process_request(hostname, username, password, interface, config_commands)
 
     results = get_mapping_results(station)
     resultsVLAN = get_vlan_results()
@@ -556,4 +609,4 @@ if __name__ == "__main__":
 
     #uvicorn.run(app, host="0.0.0.0", port=8886)
 #   uvicorn main:app --reload --host 0.0.0.0 --port 8886
-# arvin 7/15/2023
+# arvin 7/23/2023
