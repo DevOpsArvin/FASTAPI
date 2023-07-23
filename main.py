@@ -57,43 +57,71 @@ class User:
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class NetConnection:
-    def connect(self, cisco):
+class NetmikoManager:
+    def __init__(self, hostname, username, password):
+        self.cisco = {
+            "device_type": "cisco_ios",
+            "host": hostname,
+            "username": username,
+            "password": password,
+        }
+        self.ssh_connection = None
+
+    def connect(self):
         try:
-            self.net_connect = ConnectHandler(**cisco)  # Initialize net_connect as an instance attribute
-            result = "Success"
-
-
-        #except AuthenticationException as err:
-        #    error = err
-        #    print(error)
-        #    return err
-
-        except (AuthenticationException):
-            err = "Incorrect username or password"
-        #   print(result)  # Print the result
+            self.ssh_connection = ConnectHandler(**self.cisco)
+        except netmiko.ssh_exception.AuthenticationException as e:
+            err = """
+            Authentication Error: Invalid username and password
+            """
             return err
+            #return False , err
 
-        except (NetmikoTimeoutException):
-            result = "Timeout to device"
-            #print(result)  # Print the result
-
-        except (EOFError):
-            result = "End of file while attempting device"
-            #print(result)  # Print the result
-
-        except SSHException as err:
-            error = err
-            #print(error)
+        except netmiko.ssh_exception.NetmikoTimeoutException as e:
+            print(f"Timeout to device: {e}")
+            err = e
+            
             return err
+            #return False , err
 
-        #except(SSHException):
-        #    result = "SSH Issue. Are you sure SSH is enabled?"
-        #    print(result)  # Print the result
+        except netmiko.ssh_exception.NetmikoAuthenticationException as e:
+            print(f"SSH connection error: {e}")
+            err = e
+            
+            return err
+            #return False , err
 
-        except Exception as unknown_error:
-            result = f"Some other error: {unknown_error}"
-            #print(result)  # Print the result
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            err = e
+            
+            return err
+            #return False , err
+
+        
+        #return True
+
+        
+
+    def disconnect(self):
+        if self.ssh_connection:
+            self.ssh_connection.disconnect()
+            self.ssh_connection = None
+
+    def doit(self, interface, config_commands):
+        if not self.ssh_connection:
+            print("SSH connection is not established. Call the connect() method first.")
+            return
+
+        try:
+            # Send configuration commands using send_config_set()
+            output = self.ssh_connection.send_config_set(config_commands)
+
+            # Print the output of the configuration commands
+            print(output)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 
 
@@ -164,7 +192,7 @@ async def home(request: Request):
 userValid = False
 
 #===================================================================
-@app.post("/login")
+@app.post("/Xlogin")
 async def process_login(
         request: Request, 
         username: str = Form(...), 
@@ -227,23 +255,27 @@ async def process_login(
 
 
 #===================================================================
-@app.post("/xlogin")
+@app.post("/login")
 async def process_login(
         request: Request, 
         username: str = Form(...), 
         password: str = Form(...)
         ):
 
-    #user = User("admin", "C1sco12345", "sandbox-iosxe-latest-1.cisco.com")
-    user = User(username, password, "sandbox-iosxe-latest-1.cisco.com")
-    cisco = user.cisco()
-    net_connect = NetConnection()
+    # Device information
+
+    #hostname = "10.16.0.227"
+    hostname = "sandbox-iosxr-1.cisco.com"
+    #username = 'admin'
+    #password = 'C1sco12345'
+
+    
+    netmiko_manager = NetmikoManager(hostname, username, password)
+    print(f"270 ---{netmiko_manager.connect()}")
+    print(f"271 ---{netmiko_manager}")
+
     err = None
-    connection_result = net_connect.connect(cisco)  # Call the connect method with the object
-    userValid = connection_result is None or False
-            
-    print(f"360: {userValid}")
-    print(f"361: {connection_result}")
+    userValid = netmiko_manager.connect() is None or False
 
 
     if userValid == True:
@@ -269,7 +301,7 @@ async def process_login(
             print("Account not found.")
 
 
-        print(f"374 -- Error : {err}") 
+        print(f"303 -- Error : {err}") 
 
         return templates.TemplateResponse(
             "search.html", 
@@ -278,12 +310,13 @@ async def process_login(
             }
         )
     else:    
-        print(f"377 Error : {err}") 
+        print(f"312 Error : {err}") 
         return templates.TemplateResponse(
             "login.html", 
             {
                 "request": request, 
-                "error_message": connection_result
+                "error_message": netmiko_manager.connect()
+                #[1] #get the 2nd arg.
             }
         )
 
