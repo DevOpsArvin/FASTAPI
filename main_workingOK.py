@@ -9,15 +9,18 @@ from contextlib import closing
 
 from fastapi import Response
 
-import textwrap
-
 import sqlite3
 
-from netmiko import (
-    ConnectHandler,
-    NetmikoTimeoutException,
-    NetmikoAuthenticationException,
-)
+#import textwrap
+#import html
+
+
+import netmiko
+from netmiko.ssh_exception import NetmikoTimeoutException, SSHException, AuthenticationException
+from netmiko import ConnectHandler  # Import the ConnectHandler class
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"))
@@ -27,13 +30,101 @@ templates = Jinja2Templates(directory="templates")
 
 UsersLoggedIn = {}  # Define the UsersLoggedIn dictionary
 
-#loginU_var = ""
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Connect to the SQLite database using a context manager
 def get_database_connection():
     conn = sqlite3.connect("epmap.db")
     return conn
+
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class User:
+    def __init__(self, username, password, hostname):
+        self.username = username
+        self.password = password
+        self.hostname = hostname
+
+    def cisco(self):
+        cisco = {
+            'device_type': 'cisco_ios',
+            'username': f'{self.username}',
+            'password': f"{self.password}",
+            'host': f'{self.hostname}'
+        }
+        return cisco
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class NetmikoManager:
+    def __init__(self, hostname, username, password):
+        self.cisco = {
+            "device_type": "cisco_ios",
+            "host": hostname,
+            "username": username,
+            "password": password,
+        }
+        self.ssh_connection = None
+
+    def connect(self):
+        try:
+            self.ssh_connection = ConnectHandler(**self.cisco)
+        except netmiko.ssh_exception.AuthenticationException as e:
+            err = """
+            Authentication Error: Invalid username and password
+            """
+            return err
+            #return False , err
+
+        except netmiko.ssh_exception.NetmikoTimeoutException as e:
+            print(f"Timeout to device: {e}")
+            err = e
+            
+            return err
+            #return False , err
+
+        except netmiko.ssh_exception.NetmikoAuthenticationException as e:
+            print(f"SSH connection error: {e}")
+            err = e
+            
+            return err
+            #return False , err
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            err = e
+            
+            return err
+            #return False , err
+
+        
+        #return True
+
+        
+
+    def disconnect(self):
+        if self.ssh_connection:
+            self.ssh_connection.disconnect()
+            self.ssh_connection = None
+
+    def doit(self, interface, config_commands):
+        if not self.ssh_connection:
+            print("SSH connection is not established. Call the connect() method first.")
+            return
+
+        try:
+            # Send configuration commands using send_config_set()
+            output = self.ssh_connection.send_config_set(config_commands)
+
+            # Print the output of the configuration commands
+            print(output)
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+
+
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class TokenAccount:
@@ -70,195 +161,6 @@ def perform_search(query):
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def validate_login(username, password, device, commands):
-    result = {}
-    try:
-
-        username = device["username"]
-        password = device["password"]
-
-        with ConnectHandler(**device) as ssh:
-            ssh.enable()
-            for command in commands:
-                output = ssh.send_command(command)
-                result[command] = output
-
-        # Add the logged-in user to UsersLoggedIn dictionary
-        UsersLoggedIn[username] = TokenAccount(username, password)
-
-        # Print all account instances
-        for account_instance in TokenAccount.instances.values():
-            print(f"73=======: {account_instance.username} {account_instance.password}")
-
-            loginUsr = f"Account {account_instance.username} is accessing to Login... +"
-            print("+" * (len(loginUsr) + 3))
-            print(f"+  {loginUsr}")
-
-            print("+Logged in successfully!")
-            print("+" * (len(loginUsr) + 3))
-            print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
-            print("+" * (len(loginUsr) + 3))
-
-
-        account_instance = UsersLoggedIn.get(username)
-        if account_instance:
-            password = account_instance.password
-            
-            #print(f"79=======: {username} {password}")
-            print(f"User :{username} STATUS: LOGGED IN")
-            
-        else:
-            print("Account not found.")
-
-
-        return True
-
-    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
-        print(error)
-        return False, str(error)
-
-
-def xvalidate_login(username, password, device, commands):
-    try:
-        if (username == "aa" and password == "aa") or (username == "bb" and password == "bb") or (username == "cc" and password == "cc"):
-            # Code to execute if the conditions are met
-            
-
-            # Add the logged-in user to UsersLoggedIn dictionary
-            UsersLoggedIn[username] = TokenAccount(username, password)
-
-            # Print all account instances
-            for account_instance in TokenAccount.instances.values():
-                #print(f"User :{account_instance.username}  Password:{account_instance.password}")
-
-                loginUsr = f"Account {account_instance.username} is accessing to Login... +"
-                print("+" * (len(loginUsr) + 3))
-                print(f"+  {loginUsr}")
-
-                print("+Logged in successfully!")
-                print("+" * (len(loginUsr) + 3))
-                print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
-                print("+" * (len(loginUsr) + 3))
-
-            #account_instance = UsersLoggedIn.get(username)
-            #if account_instance:
-            #    password = account_instance.password
-            #    print(f"79=======: {username} {password}")
-            #else:
-            #    print("Account not found.")
-
-            
-            if UsersLoggedIn.get(username):
-                password = UsersLoggedIn.get(username).password
-                
-                #print(f"User :{username} {password}")
-                print(f"User :{username} STATUS: LOGGED IN")
-
-            else:
-                print("Account not found.")
-
-            return True
-
-        else:
-            # Code to execute if the conditions are not met
-            #print("Invalid username or password.")
-            #return False
-            
-            error = "Username or password not provided."
-            print(error)
-            return False, str(error)
-
-
-    except NameError:
-        # Code to handle the case when the variables username or password are not defined
-        error = "Username or password not provided."
-        print(error)
-        return False, str(error)
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def login(username: str, password: str):
-    device = {
-        "device_type": "cisco_ios",
-        "host": "sandbox-iosxr-1.cisco.com",
-        "username": username,
-        "password": password,
-    }
-    
-    Xdevice = {
-        "device_type": "cisco_ios",
-        "host": "10.16.0.80",
-        "username": username,
-        "password": password,
-    }
-    return validate_login(username, password, device, [])
-
-
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def modal_selectedRow(col0,col1,co2,col3,col4,col5):
-
-
-    modal_row = """
-            <div class="d-grid gap-2 col-10 mx-auto">
-                <div class="row g-2">
-                    <div class="col-sm">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingInput" value="{{ col0 }}" readonly>
-                            <label for="floatingInput">IDRow</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingInput" value="{{ col4 }}" readonly>
-                            <label for="floatingInput">Floor</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingInput" value="{{ col1 }}" readonly>
-                            <label for="floatingInput">Station</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-2">
-                    <div class="col-sm">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingInput" value="10.16.0.{{ col2 }}" readonly>
-                            <label for="floatingInput">Host</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingInput" value="{{ col3 }}" readonly>
-                            <label for="floatingInput">Interface</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row g-2">
-                    <div class="col-sm">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="floatingInput" value="{{ col5 }}" readonly>
-                            <label for="floatingInput">Location</label>
-                        </div>
-                    </div>
-                </div>
-            </div>      
-
-        """
-
-    return modal_row
-
-
-
-
-
-
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_mapping_results(station):
     query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
     results = perform_search(query)
@@ -277,30 +179,79 @@ def get_voice_results():
     return results
 
 
-
-
-
-
-
-
-
 #===================================================================
 @app.get("/")
 async def home(request: Request):
     print("+++++++++++++++++++++++++++++++++++")
+    print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
     print("+  User is preparing to Login...  +")
     print("+++++++++++++++++++++++++++++++++++")
     return templates.TemplateResponse("login.html", {"request": request})
 
 
+userValid = False
+
+#===================================================================
+@app.post("/Xlogin")
+async def process_login(
+        request: Request, 
+        username: str = Form(...), 
+        password: str = Form(...)
+        ):
+
+    if (username == "aa" and password == "aa") or (username == "bb" and password == "bb") or (username == "cc" and password == "cc"):
+        userValid = True
+        connection_result = None
+    else:    
+        userValid = False
+        connection_result = "ERROR : Username & Password.."
+
+    err = None
+            
+    print(f"360: {userValid}")
+    print(f"361: {connection_result}")
 
 
-def separate_boolean_from_tuple(tuple_to_separate):
+    if userValid == True:
 
-    boolean_element = tuple_to_separate[0]
-    tuple_without_boolean = tuple_to_separate[1:]
+        # Add the logged-in user to UsersLoggedIn dictionary
+        UsersLoggedIn[username] = TokenAccount(username, password)
 
-    return boolean_element, tuple_without_boolean
+        # Print all account instances
+        for account_instance in TokenAccount.instances.values():
+            print(f"73=======: {account_instance.username} {account_instance.password}")
+
+            loginUsr = f"Account {account_instance.username} is accessing to Login... +"
+            print(f"+  {loginUsr}")
+            print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
+
+        account_instance = UsersLoggedIn.get(username)
+        if account_instance:
+            password = account_instance.password
+            print(f"368 =======: {username} {password}")
+            print(f"User :{username} STATUS: LOGGED IN")
+            
+        else:
+            print("Account not found.")
+
+
+        print(f"374 -- Error : {err}") 
+
+        return templates.TemplateResponse(
+            "search.html", 
+            {   "request": request, 
+                "loginU_var": username
+            }
+        )
+    else:    
+        print(f"377 Error : {err}") 
+        return templates.TemplateResponse(
+            "login.html", 
+            {
+                "request": request, 
+                "error_message": connection_result
+            }
+        )
 
 
 #===================================================================
@@ -311,32 +262,67 @@ async def process_login(
         password: str = Form(...)
         ):
 
-    result = login(username, password)
+    # Device information
 
-    #print(f"306 ---- {type(result)}")
+    hostname = "10.16.0.80"
+    #hostname = "sandbox-iosxr-1.cisco.com"
 
-    if isinstance(result, bool):
+    #username = 'admin'
+    #password = 'C1sco12345'
+
+    #username = 'a.acosta'
+    #password = '!@Rvin#8569'
+
+    
+    netmiko_manager = NetmikoManager(hostname, username, password)
+    print(f"270 ---{netmiko_manager.connect()}")
+    print(f"271 ---{netmiko_manager}")
+
+    err = None
+    userValid = netmiko_manager.connect() is None or False
+
+
+    if userValid == True:
+
+        # Add the logged-in user to UsersLoggedIn dictionary
+        UsersLoggedIn[username] = TokenAccount(username, password)
+
+        # Print all account instances
+        for account_instance in TokenAccount.instances.values():
+            print(f"73=======: {account_instance.username} {account_instance.password}")
+
+            loginUsr = f"Account {account_instance.username} is accessing to Login... +"
+            print(f"+  {loginUsr}")
+            print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
+
+        account_instance = UsersLoggedIn.get(username)
+        if account_instance:
+            password = account_instance.password
+            print(f"297 =======: {username} {password}")
+            print(f"User :{username} STATUS: LOGGED IN")
+            
+        else:
+            print("Account not found.")
+
+
+        print(f"303 -- Error : {err}") 
+
         return templates.TemplateResponse(
             "search.html", 
             {   "request": request, 
                 "loginU_var": username
             }
         )
-    else:
-        tuple_to_separate = result
-        boolean_element, tuple_without_boolean = separate_boolean_from_tuple(tuple_to_separate)
-
-        result = tuple_without_boolean.splitlines()
-        
+    else:    
+        print(f"312 Error : {err}") 
         return templates.TemplateResponse(
             "login.html", 
             {
                 "request": request, 
-                "error_message": result
+                "error_message": netmiko_manager.connect()
+                #[1] #get the 2nd arg.
             }
         )
-
-
 
 
 
@@ -354,6 +340,7 @@ async def search(
     resultsVoice = get_voice_results()
 
     print(results[0])
+    print(results)
 
     #view_modal = modal_selectedRow(idrow,station,port,interface,floor,location)
 
@@ -375,10 +362,14 @@ async def search(
         return templates.TemplateResponse("login.html", {"request": request})
 
 
+#===================================================================
+def process_request(hostname, username, password,interface, config_commands):
+    netmiko_manager = NetmikoManager(hostname, username, password)
+    netmiko_manager.connect()
+    
+    netmiko_manager.doit(interface, config_commands)
+    netmiko_manager.disconnect()
 
-
-
-#@app.post("/process_modal_form")
 #===================================================================
 @app.post("/process_modal_form1")
 async def process_modal_form(
@@ -414,13 +405,35 @@ async def process_modal_form(
     else:
         print("Account not found.")
 
+    print("--------------------------")
+    print("USER PASSWORD:", password)
+    print("--------------------------")
+
+
+    #result = login(username, password)
+    print(f"CLEAR PORT CODE HERE....")
+
+    hostname = f"10.16.0.{port}"
+    username = loginU_var
+    password = password
+    interface = interface
+    
+    print(f"420 ---  {hostname}")
+
+    # Clear Port
+    config_commands = [
+        f"interface {interface}",
+        "shutdown",
+        "no shutdown",
+        "exit",  # Exit interface configuration mode
+    ]
+
+    process_request(hostname, username, password, interface, config_commands)
+
+    
     results = get_mapping_results(station)
     resultsVLAN = get_vlan_results()
     resultsVoice = get_voice_results()
-
-
-
-
 
     # Process the form data as needed
     return templates.TemplateResponse(
@@ -439,6 +452,8 @@ async def process_modal_form(
         }
 
     )
+
+
 
 
 #===================================================================
@@ -477,6 +492,29 @@ async def process_modal_form(
     else:
         print("Account not found.")
 
+
+    print(f"CHANGE VLAN CODE HERE....")
+
+    hostname = f"10.16.0.{port}"
+    username = loginU_var
+    password = password
+    interface = interface
+    vlanID = VLANCustom
+    
+    print(f"504 ---  {hostname}")
+    print(f"505 ---  {VLANCustom}")
+
+    # Clear Port
+    config_commands = [
+        f"interface {interface}",
+        f"switchport access vlan {vlanID}",
+        "shutdown",
+        "no shutdown",
+        "end",  # Exit interface configuration mode
+    ]
+
+    process_request(hostname, username, password, interface, config_commands)
+
     results = get_mapping_results(station)
     resultsVLAN = get_vlan_results()
     resultsVoice = get_voice_results()
@@ -497,6 +535,9 @@ async def process_modal_form(
             "resultsVoice": resultsVoice           
         }
     )
+
+
+
 
 
 #===================================================================
@@ -568,4 +609,4 @@ if __name__ == "__main__":
 
     #uvicorn.run(app, host="0.0.0.0", port=8886)
 #   uvicorn main:app --reload --host 0.0.0.0 --port 8886
-# arvin 7/15/2023
+# arvin 7/23/2023
