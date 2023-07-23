@@ -4,20 +4,20 @@ import datetime
 def create_database():
     """Creates the database file if it does not exist."""
     try:
-        conn = sqlite3.connect('elog.db')
+        conn2 = sqlite3.connect('elog.db')
     except sqlite3.Error as e:
         print(e)
         print('Creating database...')
-        conn = sqlite3.connect('elog.db')
-    return conn
+        conn2 = sqlite3.connect('elog.db')
+    return conn2
 
-def create_table(conn):
+def create_table(conn2):
     """Creates a table in the database."""
-    c = conn.cursor()
+    c = conn2.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS eventlog (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     datestamp TEXT,
-                    indexrow INTEGER,
+                    indexrow TEXT,
                     station TEXT,
                     host TEXT,
                     interface TEXT,
@@ -27,15 +27,16 @@ def create_table(conn):
                     doneby TEXT
                 )''')
 
-def insert_data(conn, data):
+
+def insert_data(conn2, data):
     """Inserts data into the table."""
-    c = conn.cursor()
+    c = conn2.cursor()
     c.execute('INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', data)
-    conn.commit()
+    conn2.commit()
 
 def main():
-    conn = create_database()
-    create_table(conn)
+    conn2 = create_database()
+    create_table(conn2)
 
 
     # Get the current date and time.
@@ -46,12 +47,12 @@ def main():
 
 
     # Sample data
-    data = (datestamp, 1, 'StationA', 'HostA', 'InterfaceA', 'Floor1', 'LocationA', 'ActionA', 'UserA')
+    data = (datestamp, '1', 'StationA', 'HostA', 'InterfaceA', 'Floor1', 'LocationA', 'ActionA', 'UserA')
 
-    insert_data(conn, data)
+    insert_data(conn2, data)
 
     # Close the connection.
-    conn.close()
+    conn2.close()
 
 if __name__ == '__main__':
     main()
