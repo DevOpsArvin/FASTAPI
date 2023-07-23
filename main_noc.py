@@ -479,14 +479,14 @@ async def process_modal_form(
     process_request(hostname, username, password, interface, config_commands)
 
     
-    # Get the current date and time.
+    # Get the current date and time.--------------------------------------------
     now = datetime.datetime.now()
 
     # Convert the date and time to a string.
     datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
 
     # Sample data
-    data = (datestamp, '1', 'StationA', 'HostA', 'InterfaceA', 'Floor1', 'LocationA', 'ActionA', 'UserA')
+    data = (datestamp, idrow, station, hostname, interface, floor, location, 'CLEAR PORT', loginU_var)
     
     conn2 = sqlite3.connect('elog.db')
     cursor = conn2.cursor()
@@ -497,7 +497,7 @@ async def process_modal_form(
 
     # Close the connection.
     conn2.close()
-
+    #--------------------------------------------------------------------------
 
 
 
