@@ -10,9 +10,7 @@ from contextlib import closing
 from fastapi import Response
 
 import sqlite3
-
-#import textwrap
-#import html
+import datetime
 
 
 import netmiko
@@ -38,22 +36,35 @@ def get_database_connection():
     return conn
 
 
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def create_database():
+    """Creates the database file if it does not exist."""
+    try:
+        conn2 = sqlite3.connect('elog.db')
+    except sqlite3.Error as e:
+        print(e)
+        print('Creating database...')
+        conn2 = sqlite3.connect('elog.db')
+    return conn2
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class User:
-    def __init__(self, username, password, hostname):
-        self.username = username
-        self.password = password
-        self.hostname = hostname
+def create_table(conn2):
+    """Creates a table in the database."""
+    c = conn2.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS eventlog (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    datestamp TEXT,
+                    indexrow TEXT,
+                    station TEXT,
+                    host TEXT,
+                    interface TEXT,
+                    floor TEXT,
+                    location TEXT,
+                    actions TEXT,
+                    doneby TEXT
+                )''')
 
-    def cisco(self):
-        cisco = {
-            'device_type': 'cisco_ios',
-            'username': f'{self.username}',
-            'password': f"{self.password}",
-            'host': f'{self.hostname}'
-        }
-        return cisco
+
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -67,39 +78,28 @@ class NetmikoManager:
         }
         self.ssh_connection = None
 
+
     def connect(self):
         try:
             self.ssh_connection = ConnectHandler(**self.cisco)
         except netmiko.ssh_exception.AuthenticationException as e:
-            err = """
-            Authentication Error: Invalid username and password
-            """
+            err = """86-- Authentication Error: Invalid username and password"""
             return err
-            #return False , err
 
         except netmiko.ssh_exception.NetmikoTimeoutException as e:
-            print(f"Timeout to device: {e}")
+            print(f"90-- Timeout to device: {e}")
             err = e
-            
             return err
-            #return False , err
 
         except netmiko.ssh_exception.NetmikoAuthenticationException as e:
-            print(f"SSH connection error: {e}")
+            print(f"95-- SSH connection error: {e}")
             err = e
-            
             return err
-            #return False , err
 
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"100-- An error occurred: {e}")
             err = e
-            
             return err
-            #return False , err
-
-        
-        #return True
 
         
 
@@ -108,10 +108,12 @@ class NetmikoManager:
             self.ssh_connection.disconnect()
             self.ssh_connection = None
 
+
     def doit(self, interface, config_commands):
         if not self.ssh_connection:
             print("SSH connection is not established. Call the connect() method first.")
             return
+
 
         try:
             # Send configuration commands using send_config_set()
@@ -162,21 +164,15 @@ def perform_search(query):
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_mapping_results(station):
-    query = f"SELECT * FROM mapping WHERE station LIKE '%{station}%'"
-    results = perform_search(query)
-    return results
+    return perform_search(f"SELECT * FROM mapping WHERE station LIKE '%{station}%'")
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_vlan_results():
-    query = f"SELECT * FROM vlans"
-    results = perform_search(query)
-    return results
+    return perform_search(f"SELECT * FROM vlans")
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def get_voice_results():
-    query = f"SELECT * FROM voices"
-    results = perform_search(query)
-    return results
+    return perform_search(f"SELECT * FROM voices")
 
 
 #===================================================================
@@ -186,13 +182,16 @@ async def home(request: Request):
     print(f"Number of User Logged-in to the System : {len(UsersLoggedIn)}")
     print("+  User is preparing to Login...  +")
     print("+++++++++++++++++++++++++++++++++++")
+    conn2 = create_database()
+    create_table(conn2)
+    print("STARTING WEB APP")
     return templates.TemplateResponse("login.html", {"request": request})
 
 
 userValid = False
 
 #===================================================================
-@app.post("/Xlogin")
+@app.post("/xlogin")
 async def process_login(
         request: Request, 
         username: str = Form(...), 
@@ -211,6 +210,8 @@ async def process_login(
     print(f"360: {userValid}")
     print(f"361: {connection_result}")
 
+
+    
 
     if userValid == True:
 
@@ -264,19 +265,18 @@ async def process_login(
 
     # Device information
 
-    hostname = "10.16.0.80"
     #hostname = "sandbox-iosxr-1.cisco.com"
-
     #username = 'admin'
     #password = 'C1sco12345'
 
+    hostname = "10.16.0.80"
     #username = 'a.acosta'
     #password = '!@Rvin#8569'
 
     
     netmiko_manager = NetmikoManager(hostname, username, password)
-    print(f"270 ---{netmiko_manager.connect()}")
-    print(f"271 ---{netmiko_manager}")
+    #print(f"270 ---{netmiko_manager.connect()}")
+    #print(f"271 ---{netmiko_manager}")
 
     err = None
     userValid = netmiko_manager.connect() is None or False
@@ -333,14 +333,13 @@ async def search(
         station: str = Form(...), 
         loginU_var: str = Form(...)
         ):
-
     # Connect to the SQLite database
     results = get_mapping_results(station)
     resultsVLAN = get_vlan_results()
     resultsVoice = get_voice_results()
 
-    print(results[0])
-    print(results)
+    #print(results[0])
+    #print(results)
 
     #view_modal = modal_selectedRow(idrow,station,port,interface,floor,location)
 
@@ -366,9 +365,24 @@ async def search(
 def process_request(hostname, username, password,interface, config_commands):
     netmiko_manager = NetmikoManager(hostname, username, password)
     netmiko_manager.connect()
+
+    print(f"369------- {netmiko_manager.connect()}")
     
     netmiko_manager.doit(interface, config_commands)
     netmiko_manager.disconnect()
+
+
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def perform_sql2(query, data):
+    conn2 = sqlite3.connect('elog.db')
+    cursor2 = conn2.cursor()
+    cursor2.execute(query, data)
+    conn2.commit()
+    conn2.close()
+
+    return
 
 #===================================================================
 @app.post("/process_modal_form1")
@@ -428,9 +442,26 @@ async def process_modal_form(
         "exit",  # Exit interface configuration mode
     ]
 
+    # Do Clear Port
     process_request(hostname, username, password, interface, config_commands)
 
+    #netmiko_manager = NetmikoManager(hostname, username, password)
+    #print(f"err446 ======== {netmiko_manager.connect()}")
     
+    # ------------------------------------------------------------------------
+    # Get the current date and time.
+    now = datetime.datetime.now()
+    # Convert the date and time to a string.
+    datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    data = (datestamp, idrow, station, hostname, interface, floor, location, 'CLEAR PORT', loginU_var)
+    perform_sql2(query, data)
+
+    #--------------------------------------------------------------------------
+
+
+
     results = get_mapping_results(station)
     resultsVLAN = get_vlan_results()
     resultsVoice = get_voice_results()
@@ -514,6 +545,20 @@ async def process_modal_form(
     ]
 
     process_request(hostname, username, password, interface, config_commands)
+
+    # ------------------------------------------------------------------------
+    # Get the current date and time.
+    now = datetime.datetime.now()
+    # Convert the date and time to a string.
+    datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    data = (datestamp, idrow, station, hostname, interface, floor, location, f'CHANGE VLAN-{VLANCustom}', loginU_var)
+    perform_sql2(query, data)
+
+    #--------------------------------------------------------------------------
+
+
 
     results = get_mapping_results(station)
     resultsVLAN = get_vlan_results()
@@ -605,8 +650,10 @@ async def process_modal_form(
 if __name__ == "__main__":
     import uvicorn
 
+
+
     uvicorn.run(app, host="0.0.0.0", port=8886)
 
     #uvicorn.run(app, host="0.0.0.0", port=8886)
 #   uvicorn main:app --reload --host 0.0.0.0 --port 8886
-# arvin 7/23/2023
+# arvin 7/15/2023
