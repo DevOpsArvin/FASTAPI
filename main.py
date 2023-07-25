@@ -97,8 +97,9 @@ class NetmikoManager:
             return err
 
         except Exception as e:
-            print(f"100-- An error occurred: {e}")
-            err = e
+            #print(f"100-- An error occurred: {e}")
+            #err = e
+            err = "ERROR: Incorrect hostname or IP address...\nwerwer"
             return err
 
         
@@ -123,7 +124,7 @@ class NetmikoManager:
             print(output)
 
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"126 An error occurred: {e}")
 
 
 
@@ -265,11 +266,11 @@ async def process_login(
 
     # Device information
 
-    #hostname = "sandbox-iosxr-1.cisco.com"
-    #username = 'admin'
-    #password = 'C1sco12345'
+    hostname = "sandbox-iosxr-1.cisco.com"
+    username = 'admin'
+    password = 'C1sco12345'
 
-    hostname = "10.16.0.80"
+    #hostname = "10.16.0.80"
     #username = 'a.acosta'
     #password = '!@Rvin#8569'
 
@@ -280,6 +281,7 @@ async def process_login(
 
     err = None
     userValid = netmiko_manager.connect() is None or False
+    print(f"283  : {userValid}") 
 
 
     if userValid == True:
@@ -363,15 +365,21 @@ async def search(
 
 #===================================================================
 def process_request(hostname, username, password,interface, config_commands):
+    print("367 ====  process_request")
     netmiko_manager = NetmikoManager(hostname, username, password)
-    netmiko_manager.connect()
+    #netmiko_manager.connect()
 
-    print(f"369------- {netmiko_manager.connect()}")
+    #print(f"371------- {netmiko_manager.connect()}")
+    x = netmiko_manager.connect()
+    print(f"371-------{x} ")
+
+    userValid = netmiko_manager.connect() is None or False
+    print(f"377  : {userValid}") 
     
     netmiko_manager.doit(interface, config_commands)
     netmiko_manager.disconnect()
 
-
+    return x, userValid
 
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -427,36 +435,44 @@ async def process_modal_form(
     #result = login(username, password)
     print(f"CLEAR PORT CODE HERE....")
 
-    hostname = f"10.16.0.{port}"
+    hostname = "sandbox-iosxr-1.cisco.com1"
+    #hostname = f"10.16.0.{port}"
     username = loginU_var
     password = password
     interface = interface
-    
-    print(f"420 ---  {hostname}")
+        
 
     # Clear Port
-    config_commands = [
+    xconfig_commands = [
         f"interface {interface}",
         "shutdown",
         "no shutdown",
         "exit",  # Exit interface configuration mode
     ]
 
-    # Do Clear Port
-    process_request(hostname, username, password, interface, config_commands)
+    config_commands = [
+        "end",
+        "show ip int brief",
+    ]
 
+    print(f"457 ---  {hostname}")
+    # Do Clear Port
+    err, y= process_request(hostname, username, password, interface, config_commands)
+    print(f"460 err ===={err} ")
+    print(f"460 err ===={y} ")
     #netmiko_manager = NetmikoManager(hostname, username, password)
     #print(f"err446 ======== {netmiko_manager.connect()}")
-    
-    # ------------------------------------------------------------------------
-    # Get the current date and time.
-    now = datetime.datetime.now()
-    # Convert the date and time to a string.
-    datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    data = (datestamp, idrow, station, hostname, interface, floor, location, 'CLEAR PORT', loginU_var)
-    perform_sql2(query, data)
+    if y == True:
+    # ------------------------------------------------------------------------
+        # Get the current date and time.
+        now = datetime.datetime.now()
+        # Convert the date and time to a string.
+        datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+
+        query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        data = (datestamp, idrow, station, hostname, interface, floor, location, 'CLEAR PORT', loginU_var)
+        perform_sql2(query, data)
 
     #--------------------------------------------------------------------------
 
@@ -478,7 +494,8 @@ async def process_modal_form(
             "interface": interface, 
             "loginU_var": loginU_var,
             "resultsVLAN": resultsVLAN,
-            "resultsVoice": resultsVoice
+            "resultsVoice": resultsVoice,
+            "error_message": err
 
         }
 
@@ -656,4 +673,4 @@ if __name__ == "__main__":
 
     #uvicorn.run(app, host="0.0.0.0", port=8886)
 #   uvicorn main:app --reload --host 0.0.0.0 --port 8886
-# arvin 7/15/2023
+# arvin 7/25/2023
