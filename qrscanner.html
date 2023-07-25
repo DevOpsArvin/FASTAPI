@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Code Scanner html5-qrcode.min.js</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Add custom styles here */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    
+    .header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #qr-reader {
+      width: 90%;
+      max-width: 500px;
+      margin-bottom: 20px;
+    }
+    
+    #scanned-codes {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-width: 500px;
+      width: 90%;
+    }
+    
+    li {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>QR Code Scanner</h1>
+  </div>
+  
+  <div class="container">
+    <div id="qr-reader"></div>
+    <ul id="scanned-codes"></ul>
+  </div>
+  
+  <div class="footer">
+    <p>&copy; 2023 Arvin Scanner</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.7/html5-qrcode.min.js"></script>
+  <script>
+
+    function docReady(fn) {
+      // see if DOM is already available
+      if (document.readyState === "complete" || document.readyState === "interactive") {
+        // call on next available tick
+        setTimeout(fn, 1);
+      } else {
+        document.addEventListener("DOMContentLoaded", fn);
+      }
+    }
+
+    docReady(function () {
+      var resultContainer = document.getElementById('scanned-codes');
+      var lastResult, countResults = 0;
+
+      function onScanSuccess(decodedText, decodedResult) {
+        if (decodedText !== lastResult) {
+          ++countResults;
+          lastResult = decodedText;
+
+          // Create new list element
+          var newListItem = document.createElement('li');
+          newListItem.textContent = decodedText;
+
+          // Append new list element to container
+          resultContainer.appendChild(newListItem);
+
+          console.log(`Scan result ${decodedText}`, decodedResult);
+        }
+      }
+
+      var html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", { fps: 10, qrbox: 250 });
+      html5QrcodeScanner.render(onScanSuccess);
+    });
+  </script>
+
+</body>
+</html>
