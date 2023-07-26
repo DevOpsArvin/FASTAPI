@@ -28,7 +28,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Search Page</h1>
+        <h1>NetScout Assistant</h1>
         
         {% if loginU_var %}
         <p>Logged in as: {{ loginU_var }}</p>
@@ -452,7 +452,32 @@
     </div>
 
     
-    <!-- Modal Message -->
+    <!--OK Modal Message -->
+    {% if ok_message %}
+    <div class="modal" id="okModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Process OK</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="okMessage">{{ ok_message  }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = new bootstrap.Modal(document.getElementById('okModal'));
+            modal.show();
+        });
+    </script>
+
+    {% endif %}
+
+    <!--Error Modal Message -->
     {% if error_message %}
     <div class="modal" id="errorModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
