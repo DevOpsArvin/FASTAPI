@@ -266,13 +266,13 @@ async def process_login(
 
     # Device information
 
-    hostname = "sandbox-iosxr-1.cisco.com"
-    username = 'admin'
-    password = 'C1sco12345'
+    #hostname = "sandbox-iosxr-1.cisco.com"
+    #username = 'admin'
+    #password = 'C1sco12345'
 
-    #hostname = "10.16.0.80"
-    #username = 'a.acosta'
-    #password = '!@Rvin#8569'
+    hostname = "10.16.0.80"
+    #   username = 'a.acosta'
+    #   password = '!@Rvin#8569'
 
     
     netmiko_manager = NetmikoManager(hostname, username, password)
@@ -435,22 +435,22 @@ async def process_modal_form(
     #result = login(username, password)
     print(f"CLEAR PORT CODE HERE....")
 
-    hostname = "sandbox-iosxr-1.cisco.com1"
-    #hostname = f"10.16.0.{port}"
+    #   hostname = "sandbox-iosxr-1.cisco.com1"
+    hostname = f"10.16.0.{port}"
     username = loginU_var
     password = password
     interface = interface
         
 
     # Clear Port
-    xconfig_commands = [
+    config_commands = [
         f"interface {interface}",
         "shutdown",
         "no shutdown",
         "exit",  # Exit interface configuration mode
     ]
 
-    config_commands = [
+    Xconfig_commands = [
         "end",
         "show ip int brief",
     ]
@@ -473,6 +473,7 @@ async def process_modal_form(
         query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
         data = (datestamp, idrow, station, hostname, interface, floor, location, 'CLEAR PORT', loginU_var)
         perform_sql2(query, data)
+        okmsg = f"Clear Port - Successfull"
 
     #--------------------------------------------------------------------------
 
@@ -495,7 +496,8 @@ async def process_modal_form(
             "loginU_var": loginU_var,
             "resultsVLAN": resultsVLAN,
             "resultsVoice": resultsVoice,
-            "error_message": err
+            "error_message": err,
+            "ok_message": okmsg
 
         }
 
@@ -561,19 +563,28 @@ async def process_modal_form(
         "end",  # Exit interface configuration mode
     ]
 
-    process_request(hostname, username, password, interface, config_commands)
+    #   process_request(hostname, username, password, interface, config_commands)
 
-    # ------------------------------------------------------------------------
-    # Get the current date and time.
-    now = datetime.datetime.now()
-    # Convert the date and time to a string.
-    datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+    err, y= process_request(hostname, username, password, interface, config_commands)
+    print(f"460 err ===={err} ")
+    print(f"460 err ===={y} ")
+    #netmiko_manager = NetmikoManager(hostname, username, password)
+    #print(f"err446 ======== {netmiko_manager.connect()}")
 
-    query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    data = (datestamp, idrow, station, hostname, interface, floor, location, f'CHANGE VLAN-{VLANCustom}', loginU_var)
-    perform_sql2(query, data)
+    if y == True:
 
-    #--------------------------------------------------------------------------
+        # ------------------------------------------------------------------------
+        # Get the current date and time.
+        now = datetime.datetime.now()
+        # Convert the date and time to a string.
+        datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+
+        query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        data = (datestamp, idrow, station, hostname, interface, floor, location, f'CHANGE VLAN-{VLANCustom}', loginU_var)
+        perform_sql2(query, data)
+        okmsg = f"Change to VLAN {VLANCustom} - Successfull..."
+
+        #--------------------------------------------------------------------------
 
 
 
@@ -594,7 +605,8 @@ async def process_modal_form(
             "interface": interface, 
             "loginU_var": loginU_var,
             "resultsVLAN": resultsVLAN,
-            "resultsVoice": resultsVoice           
+            "resultsVoice": resultsVoice,         
+            "ok_message": okmsg
         }
     )
 
