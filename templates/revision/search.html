@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+        
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+        .short-select {
+            width: 195px; /* Adjust this value to set the desired width */
+        }
+    </style>
+
+<!--
+    <script>
+        // Disable browser back keys
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+-->
+
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>NetScout Mate</h1>
+        
+        {% if loginU_var %}
+        <p>Logged in as: {{ loginU_var }}</p>
+        <input type="text" name="loginU_var" value="{{ loginU_var }}">
+        {% endif %}
+
+        <form method="POST" action="/search">
+            <div class="form-group">
+                <label for="station">Search Station:</label>
+                <input type="text" id="station" name="station" required class="form-control" {% if station %} value="{{ station }}" {% endif %}>
+            </div>
+            
+            {% if loginU_var %}
+            <input type="hidden" name="loginU_var" value="{{ loginU_var }}">
+            {% endif %}
+
+            <div class="form-group">
+                <input type="submit" value="Search" class="btn btn-primary">
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#manual_process" aria-expanded="false" aria-controls="change_Vlan">Manual Process</button>
+            </div>
+        </form>
+
+        {% if results %}
+        <h2>Search Results</h2>
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Floor</th>                   
+                    <th>idrow</th>                   
+                    <th>Station</th>
+                    <th>Port</th>
+                    <th>Interface</th>
+                    <th>Location</th>
+
+                </tr>
+            </thead>
+            <tbody>
+
+<!-- Modal Manual Process -->
+                <div class="modal fade" id="manual_process" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Manual Process</h5>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+
+                            <form method="POST" action="/process_manual">
+                                
+                                    <div class="d-grid gap-2 col-10 mx-auto">
+
+                                        <div class="row g-2">
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="10.16.0." >
+                                                    <label for="floatingInput">Host</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput"  >
+                                                    <label for="floatingInput">Interface</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                <div class="card card-body">
+                                <div class="form-floating">
+
+
+
+                                    <div class="card card-body">
+                                        <div class="form-floating">
+                                            <div class="row g-2 justify-content-center"> <!-- Added justify-content-center -->
+
+                                    <div class="col-sm d-flex flex-column align-items-center justify-content-center">
+                                        <div class="form-floating mb-3">
+                                            {% if resultsVLAN %}  
+                                                <select class="form-select short-select" id="select_Vlan_manual" aria-label="Floating label select">
+                                                    <option selected>Select VLAN</option>
+                                                    {% for row in resultsVLAN %}
+                                                        <option value="{{ row[1] }}">{{row[1]}} - {{row[2]}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% endif %}
+                                            <label for="select_Vlan">Select VLAN</label>
+                                            <input type="number" id="VLANCustom_manual" name="VLANCustom" class="form-control short-select" min="0" max="4095" readonly />
+                                        
+                                        </div>
+
+                                            <div class="col">
+                                                <button type="submit" id="submitButton_manual2" class="btn btn-primary btn-block" disabled>Change VLAN</button>
+                                            </div>
+                                        
+                                    </div>
+
+                                    <div class="col-sm d-flex flex-column align-items-center justify-content-center">
+                                        <div class="form-floating mb-3">
+                                            {% if resultsVoice %}  
+                                                <select class="form-select short-select" id="select_Vlan_manual_2" aria-label="Floating label select">
+                                                    <option selected>Select Voice</option>
+                                                    {% for row in resultsVoice %}
+                                                        <option value="{{ row[1] }}">{{row[1]}} - {{row[2]}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% endif %}
+                                            <label for="select_Voice_2">Select Voice</label>
+                                            <input type="number" id="VLANCustom_manual_2" name="VLANCustom_2" class="form-control short-select" min="0" max="4095" readonly />
+                                        
+                                        </div>
+
+                                            <div class="col">
+                                                <button type="submit" id="submitButton_manual3" class="btn btn-primary" disabled>Change Voice</button>
+                                            </div>
+                                        
+                                    </div>
+
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                               
+                                </div>
+                                <div class="col-sm d-flex flex-column align-items-center justify-content-center">
+                                        <div class="col">
+                                            <button type="submit" id="submitButton_manual1" class="btn btn-primary" disabled>Clear Port</button>
+
+                                        </div>
+                                </div>
+
+
+
+                              </div>
+
+                                
+
+                            </form>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+
+                <script>
+    function vlanselectFunc_manual() {
+        var selectedValue = document.getElementById("select_Vlan_manual").value;
+        document.getElementById("VLANCustom_manual").value = selectedValue;
+        var button = document.getElementById("submitButton_manual2");
+
+        if (selectedValue === "000") {
+            document.getElementById("VLANCustom_manual").readOnly = false;
+
+            if (document.getElementById("VLANCustom_manual").value === "") {
+                button.disabled = true;
+            } else {
+                button.disabled = false;
+            }
+        } else {
+            document.getElementById("VLANCustom_manual").readOnly = true;
+            button.disabled = false;
+        }
+
+        // Toggle button class between btn-secondary and btn-primary
+        if (button.disabled) {
+            button.classList.remove("btn-primary");
+            button.classList.add("btn-secondary");
+        } else {
+            button.classList.remove("btn-secondary");
+            button.classList.add("btn-primary");
+        }
+    }
+
+    document.getElementById("select_Vlan_manual").addEventListener("change", vlanselectFunc_manual);
+</script>
+
+
+
+<!-- Modal Manual Process -->
+
+
+
+
+                {% for row in results %}
+<!-- ROW -->                
+                <tr>
+                    <td><!-- FLOOR -->
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#{{ row[0] }}">{{ row[4] }}</a>
+                    </td>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>                      
+                    <td>{{ row[6] }}</td>
+                </tr>
+
+
+                <!-- Modal 1 Clear Port-->
+                <div class="modal fade" id="{{ row[0] }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">1To Process...</h5>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+
+                      <div class="modal-body">
+
+                            <!-- To Process View-->
+                            <div class="d-grid gap-2 col-10 mx-auto">
+                        <!-- Row 1 -->
+                                <div class="row g-2">
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[0] }}" readonly>
+                                            <label for="floatingInput">IDRow</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[4] }}" readonly>
+                                            <label for="floatingInput">Floor</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[1] }}" readonly>
+                                            <label for="floatingInput">Station</label>
+                                        </div>
+                                    </div>
+                                </div>
+                        <!-- Row 2 -->
+                                <div class="row g-2">
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="10.16.0.{{ row[2] }}" readonly>
+                                            <label for="floatingInput">Host</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[3] }}" readonly>
+                                            <label for="floatingInput">Interface</label>
+                                        </div>
+                                    </div>
+                                </div>
+                        <!-- Row 3 -->
+                                <div class="row g-2">
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[6] }}" readonly>
+                                            <label for="floatingInput">Location</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                          
+                            
+                            <form method="POST" action="/process_modal_form1">
+
+                                <input type="hidden" name="floor" value="{{ row[4] }}">
+                                <input type="hidden" name="idrow" value="{{ row[0] }}">
+                                <input type="hidden" name="station" value="{{ row[1] }}">
+                                <input type="hidden" name="port" value="{{ row[2] }}">
+                                <input type="hidden" name="interface" value="{{ row[3] }}">
+                                <input type="hidden" name="location" value="{{ row[6] }}">
+                                <input type="hidden" name="loginU_var" value="{{ loginU_var }}">
+         
+                                <div class="modal-footer">
+                                    <div class="d-grid gap-2 col-6 mx-auto">
+                                        <button type="submit" class="btn btn-primary"  style="float: Right;">Clear Port</button>
+                                                                            
+                                        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#vlan_{{ row[0] }}" aria-expanded="false" aria-controls="change_Vlan">Change VLAN</button>
+
+                                        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#voice_{{ row[0] }}" aria-expanded="false" aria-controls="change_Voice">Change Voice</button>
+                                    </div>
+                                </div>
+
+                            </form>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- Modal 2 Change VLAN -->
+                <div class="modal fade" id="vlan_{{ row[0] }}" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Process Change VLAN</h5>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+
+                            <form method="POST" action="/process_modal_form2">
+                                <input type="hidden" name="floor" value="{{ row[4] }}">
+                                <input type="hidden" name="idrow" value="{{ row[0] }}">
+                                <input type="hidden" name="station" value="{{ row[1] }}">
+                                <input type="hidden" name="port" value="{{ row[2] }}">
+                                <input type="hidden" name="interface" value="{{ row[3] }}">
+                                <input type="hidden" name="location" value="{{ row[6] }}">
+                                <input type="hidden" name="loginU_var" value="{{ loginU_var }}">
+         
+                                    <div class="d-grid gap-2 col-10 mx-auto">
+                                        <div class="row g-2">
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="{{ row[0] }}" readonly>
+                                                    <label for="floatingInput">IDRow</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="{{ row[4] }}" readonly>
+                                                    <label for="floatingInput">Floor</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="{{ row[1] }}" readonly>
+                                                    <label for="floatingInput">Station</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2">
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="10.16.0.{{ row[2] }}" readonly>
+                                                    <label for="floatingInput">Host</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="{{ row[3] }}" readonly>
+                                                    <label for="floatingInput">Interface</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2">
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="{{ row[6] }}" readonly>
+                                                    <label for="floatingInput">Location</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <div class="card card-body">
+                                <div class="form-floating">
+                                  {% if resultsVLAN %}  
+
+                                  <select class="form-select" id="select_Vlan_{{ row[0] }}" aria-label="Floating label select">
+                                    <option selected>Select VLAN</option>
+                                    {% for row in resultsVLAN %}
+                                        <option value="{{ row[1] }}">{{row[1]}} - {{row[2]}}</option>
+                                    {% endfor %}
+                                  </select>
+
+                                  {% endif %}
+                                  
+                                  <label for="select_Vlan">Select VLAN</label>
+                                  
+                                  <input type="number" id="VLANCustom_{{ row[0] }}" name="VLANCustom" class="form-control" min="0" max="4095" readonly />
+
+
+                                </div>
+                              </div>
+
+                                <button type="submit" id="submitButton_{{ row[0] }}" class="btn btn-primary" disabled>Process VLAN</button>
+
+                            </form>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+                <script>
+                    function vlanselectFunc_{{ row[0] }}() {
+
+                        var selectedValue = document.getElementById("select_Vlan_{{ row[0] }}").value;
+                        document.getElementById("VLANCustom_{{ row[0] }}").value = selectedValue;
+
+                        if (selectedValue === "000") {
+                            document.getElementById("VLANCustom_{{ row[0] }}").readOnly = false;
+                            alert("The VLAN value must be between 0 and 4095.");
+                            document.getElementById("VLANCustom_{{ row[0] }}").value = ""
+                            document.getElementById("VLANCustom_{{ row[0] }}").focus();
+
+                            if (document.getElementById("VLANCustom_{{ row[0] }}").value === ""){
+                                document.getElementById("submitButton_{{ row[0] }}").disabled = true;
+                            } else {
+                                document.getElementById("submitButton_{{ row[0] }}").disabled = false;
+                            }
+
+                        } else {
+                            document.getElementById("VLANCustom_{{ row[0] }}").readOnly = true;
+                            document.getElementById("submitButton_{{ row[0] }}").disabled = false;
+                        }
+
+                        if (selectedValue === "Select VLAN") {document.getElementById("submitButton_{{ row[0] }}").disabled = true;}
+                    }
+
+                    document.getElementById("select_Vlan_{{ row[0] }}").addEventListener("change", vlanselectFunc_{{ row[0] }});
+
+                    document.getElementById("VLANCustom_{{ row[0] }}").addEventListener("keyup", function(event) {
+                        var key = event.keyCode;
+                        var value = event.target.value;
+                        if (key >= 48 && key <= 57 && value >= 0 && value <= 4095) {
+                            // The key is numeric and the value is between 0 and 4095.
+                            document.getElementById("submitButton_{{ row[0] }}").disabled = false;
+                        } else {
+                            // The key is not numeric or the value is not between 0 and 4095.
+                            alert("The value that you entered is not between 0 and 4095 or Not a Numeric Value.");
+                            alert("Please Enter the VLAN ID..");
+                            document.getElementById("submitButton_{{ row[0] }}").disabled = true;
+                            document.getElementById("VLANCustom_{{ row[0] }}").value = "";
+                            
+                      }
+                    });
+
+                </script>
+
+
+
+
+
+
+                <!-- Modal 3 Change VOICE -->
+                <div class="modal fade" id="voice_{{ row[0] }}" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Process Change Voice</h5>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+
+                            <div class="d-grid gap-2 col-10 mx-auto">
+                                <div class="row g-2">
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[0] }}" readonly>
+                                            <label for="floatingInput">IDRow</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[4] }}" readonly>
+                                            <label for="floatingInput">Floor</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[1] }}" readonly>
+                                            <label for="floatingInput">Station</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-2">
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="10.16.0.{{ row[2] }}" readonly>
+                                            <label for="floatingInput">Host</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[3] }}" readonly>
+                                            <label for="floatingInput">Interface</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-2">
+                                    <div class="col-sm">
+                                        <div class="form-floating mb-3">
+                                            <input type="text" class="form-control" id="floatingInput" value="{{ row[6] }}" readonly>
+                                            <label for="floatingInput">Location</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                          
+
+
+                            <form method="POST">
+                                <input type="hidden" name="floor" value="{{ row[4] }}">
+                                <input type="hidden" name="idrow" value="{{ row[0] }}">
+                                <input type="hidden" name="station" value="{{ row[1] }}">
+                                <input type="hidden" name="port" value="{{ row[2] }}">
+                                <input type="hidden" name="interface" value="{{ row[3] }}">
+                                <input type="hidden" name="location" value="{{ row[6] }}">
+                                <input type="hidden" name="loginU_var" value="{{ loginU_var }}">
+
+                                <div class="card card-body">
+                                <div class="form-floating">
+                                  {% if resultsVoice %}  
+                                  <select class="form-select" id="select_Voice_{{ row[0] }}" aria-label="Floating label select">
+                                    <option selected>Select Voice</option>
+                                    {% for rowvc in resultsVoice %}
+                                        <option value="{{ rowvc[1] }}">{{rowvc[1]}}</option>
+                                    {% endfor %}
+                                  </select>
+                                  {% endif %}
+                                  <label for="select_Voice">Select Voice</label>
+                                  
+                                  <input type="number" id="VoiceCustom_{{ row[0] }}" name="VoiceCustom" class="form-control" min="0" max="24" readonly />
+
+                                </div>
+                              </div>
+
+                                <button type="submit" class="btn btn-primary" formaction="/process_modal_form3">Process Voice</button>
+
+                            </form>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+
+                    <script>
+                    function voiceselectFunc_{{ row[0] }}() {
+                      var selectedValue = document.getElementById("select_Voice_{{ row[0] }}").value;
+                      document.getElementById("VoiceCustom_{{ row[0] }}").value = selectedValue;
+
+                      if (selectedValue === "000") {
+                        document.getElementById("VoiceCustom_{{ row[0] }}").readOnly = false;
+                        document.getElementById("VoiceCustom_{{ row[0] }}").value = "";
+                      } else {
+                        document.getElementById("VoiceCustom_{{ row[0] }}").readOnly = true;
+                      }
+                    }
+
+                    document.getElementById("select_Voice_{{ row[0] }}").addEventListener("change", voiceselectFunc_{{ row[0] }});
+                   
+                    </script>
+
+                {% endfor %}
+
+
+
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+
+
+
+
+    
+    <!--OK Modal Message -->
+    {% if ok_message %}
+    <div class="modal" id="okModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Process OK</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="okMessage">{{ ok_message  }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = new bootstrap.Modal(document.getElementById('okModal'));
+            modal.show();
+        });
+    </script>
+
+    {% endif %}
+
+
+
+
+    <!--Error Modal Message -->
+    {% if error_message %}
+    <div class="modal" id="errorModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMessage">{{ error_message  }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+            modal.show();
+        });
+    </script>
+
+    {% endif %}
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+</body>
+</html>
