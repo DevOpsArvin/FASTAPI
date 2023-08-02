@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+        
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+        .short-select {
+            width: 195px; /* Adjust this value to set the desired width */
+        }
+    </style>
+
+<!--
+    <script>
+        // Disable browser back keys
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+-->
+
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>NetScout Mate</h1>
+        
+        
+        <p>Logged in as: admin</p>
+        <input type="text" name="loginU_var" value="admin">
+        
+
+        <form method="POST" action="/search">
+            <div class="form-group">
+                <label for="station">Search Station:</label>
+                <input type="text" id="station" name="station" required class="form-control"  value="p-009" >
+            </div>
+            
+            
+            <input type="hidden" name="loginU_var" value="admin">
+            
+
+            <div class="form-group">
+                <input type="submit" value="Search" class="btn btn-primary">
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#manual_process" aria-expanded="false" aria-controls="change_Vlan">Manual Process</button>
+            </div>
+        </form>
+
+
+<!-- Modal Manual Process -->
+                <div class="modal fade" id="manual_process" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Manual Process</h5>
+                        
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+
+                            <form method="POST" action="/process_manual">
+
+                                    <div class="d-grid gap-2 col-10 mx-auto">
+                                        <div class="row g-2">
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+<p class="fw-normal" style="display: inline">IDX :<p class="fw-bold" style="display: inline">Bold text.</p></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+ <p class="fw-normal" style="display: inline">Station :<p class="fw-bold" style="display: inline">P-460</p></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+ <p class="fw-normal" style="display: inline">Floor :<p class="fw-bold" style="display: inline">11F</p></p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="d-grid gap-2 col-10 mx-auto">
+                                        <div class="row g-2">
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+<p class="fw-normal" style="display: inline">Location :<p class="fw-bold" style="display: inline">qrqwer qwer qwedfgh fghr</p></p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="d-grid gap-2 col-10 mx-auto">
+
+                                        <div class="row g-2">
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput" value="10.16.0." >
+                                                    <label for="floatingInput">Host</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="floatingInput"  >
+                                                    <label for="floatingInput">Interface</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                <div class="card card-body">
+                                <div class="form-floating">
+
+
+
+                                    <div class="card card-body">
+                                        <div class="form-floating">
+                                            <div class="row g-2 justify-content-center"> <!-- Added justify-content-center -->
+
+                                    <div class="col-sm d-flex flex-column align-items-center justify-content-center">
+                                        <div class="form-floating mb-3">
+                                              
+                                                <select class="form-select short-select" id="select_Vlan_manual" aria-label="Floating label select">
+                                                    <option selected>Select VLAN</option>
+                                                    <option value="000">000 - Custom</option>
+                                                    
+                                                    <option value="64">64 - Core</option>
+                                                    <option value="68">68 - Paypal</option>
+                                                    <option value="72">72 - DHLT</option>
+                                                    <option value="80">80 - Sprint</option>
+                                                    <option value="108">108 - Sprint2</option>
+                                                    <option value="116">116 - Arria</option>
+                                                    <option value="599">599 - Open</option>
+                                                    <option value="600">600 - Open</option>
+                                                    <option value="130">130 - 130</option>
+                                                    <option value="140">140 - 140</option>
+                                                    
+                                                </select>
+                                            
+                                            <label for="select_Vlan">Select VLAN</label>
+                                            <input type="number" id="VLANCustom_manual" name="VLANCustom" class="form-control short-select" min="0" max="4095" readonly />
+                                        
+                                        </div>
+
+
+                                        
+                                    </div>
+
+                                    <div class="col-sm d-flex flex-column align-items-center justify-content-center">
+                                        <div class="form-floating mb-3">
+                                              
+                                                <select class="form-select short-select" id="select_Vlan_manual_2" aria-label="Floating label select">
+                                                    <option selected>Select Voice</option>
+                                                    <option value="000">000 - Custom</option>
+                                                    <option value="4">4 - Core</option>
+                                                    <option value="12">12 - Sprint</option>
+                                                    <option value="16">16 - Sprint</option>
+                                                    <option value="24">24 - Sprint</option>
+                                                    
+                                                </select>
+                                            
+                                            <label for="select_Voice_2">Select Voice</label>
+                                            <input type="number" id="VLANCustom_manual_2" name="VLANCustom_2" class="form-control short-select" min="0" max="4095" readonly />
+                                        
+                                        </div>
+
+                                        
+                                    </div>
+
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                               
+                                </div>
+                                <div class="col-sm d-flex flex-column align-items-center justify-content-center">
+                                        <div class="col">
+                                            <button type="submit" id="submitButton_manual2" class="btn btn-secondary btn-block" disabled>Change VLAN</button>
+                                            <button type="submit" id="submitButton_manual1" class="btn btn-warning" disabled>Clear Port</button>
+                                            <button type="submit" id="submitButton_manual3" class="btn btn-secondary" disabled>Change Voice</button>
+                                        </div>
+                                </div>
+
+
+
+                              </div>
+
+                                
+
+                            </form>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+
+                <script>
+    function vlanselectFunc_manual() {
+        var selectedValue = document.getElementById("select_Vlan_manual").value;
+        document.getElementById("VLANCustom_manual").value = selectedValue;
+
+        var button2 = document.getElementById("submitButton_manual2");
+        var button1 = document.getElementById("submitButton_manual1");
+
+        if (selectedValue === "000") {
+            document.getElementById("VLANCustom_manual").readOnly = false;
+            document.getElementById("VLANCustom_manual").focus();
+
+            if (document.getElementById("VLANCustom_manual").value === "") {
+                button2.disabled = true;
+                button1.disabled = false;
+            } else {
+                button2.disabled = false;
+                button1.disabled = true;
+            }
+        } else if (selectedValue === "Select VLAN" ) {
+            document.getElementById("VLANCustom_manual").readOnly = true;
+            
+            if (document.getElementById("VLANCustom_manual").value === "") {
+                button2.disabled = true;
+                button1.disabled = false;
+            } else {
+                button2.disabled = false;
+                button1.disabled = true;
+            }
+
+
+
+        } else {
+            document.getElementById("VLANCustom_manual").readOnly = true;
+            button.disabled = false;
+        }
+
+        // Toggle button class between btn-secondary and btn-primary
+        if (button2.disabled) {
+            button2.classList.remove("btn-primary");
+            button2.classList.add("btn-secondary");
+        } else {
+            button2.classList.remove("btn-secondary");
+            button2.classList.add("btn-primary");
+        }
+    }
+
+    document.getElementById("select_Vlan_manual").addEventListener("change", vlanselectFunc_manual);
+</script>
+
+
+<!-- Modal Manual Process -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+</body>
+</html>
+
+<!--
+python -m http.server 8886
+-->
