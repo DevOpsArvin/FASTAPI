@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+        
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+    <!-- Add Bootstrap JS (Popper.js and Bootstrap JS) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <style>
+        .short-select190 {
+            width: 190px; /* Adjust this value to set the desired width */
+        }
+        .short-select100 {
+            width: 100px; /* Adjust this value to set the desired width */
+        }
+    </style>
+
+<style>
+    .btn-icon {
+        background-color: transparent;
+        border: none;
+    }
+</style>
+
+
+<!--
+    <script>
+        // Disable browser back keys
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+-->
+
+
+
+</head>
+<body>
+
+<!-- Open Modal Manual Process -->
+                <td><!-- FLOOR -->
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#showAdd_">{{ row[0] }}</a>
+                </td>
+
+<!-- Modal Manual Process -->
+    <div class="modal fade" id="showAdd_" data-bs-backdrop="static" data-bs-keyboard="false"  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Adding Mapping to Database</h5>
+                    <!-- <h5 class="modal-title" id="staticBackdropLabel">Processing {{ row[4] }} Floor, IDRox :{{ row[0] }}</h5> -->
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <form method="POST" action="/process_add">
+
+                    <!-- To Process View-->
+                        <div class="d-grid gap-2 col-10 mx-auto">
+
+                    <!-- Row 1 -->
+                            <div class="row g-2">
+
+                                <div class="col-sm">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="floatingInput" name="station" >
+                                        <label class="text-danger" for="floatingInput">Station</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm">
+                                    <div class="form-floating mb-3 d-flex flex-fill"> 
+                                    <!--{% if resultsFloors %} -->
+                                        <select class="form-select short-select190 flex-fill" id="select_Vlan_manual" aria-label="Floating label select" name="floor">
+                                            <option selected>Select Floor</option>
+
+                                            <option value="R1">R1</option>
+                                            <option value="UG">UG</option>
+                                            <option value="P2">P2</option>
+                                            <option value="5F">5F</option>
+                                            <option value="6F">6F</option>
+                                            <option value="7F">7F</option>
+                                            <option value="8F">8F</option>
+                                            <option value="9F">9F</option>
+                                            <option value="10F">10F</option>
+                                            <option value="11F">11F</option>
+                                            
+
+                                        <!-- 
+                                            {% for row in resultsFloors %}
+                                               <option value={{row[4]}}>{{row[4]}}</option>
+                                            {% endfor %} 
+                                        -->
+
+                                        </select>
+                                    <!-- {% endif %} -->
+                                    <label class="text-danger" for="select_Vlan">Select Floor</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm">
+                                    <input type="text" name="floor" >
+                                </div>
+
+
+                            </div>
+
+
+                    <!-- Row 2 -->
+                            <div class="row g-2">
+
+                                <div class="col-sm">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="floatingInput" value="10.16.0." name="port">
+                                        <label class="text-danger" for="floatingInput">Host</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="floatingInput"  name="interface">
+                                        <label class="text-danger" for="floatingInput">Interface</label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                    <!-- Row 3 -->
+                            <div class="row g-2">
+                                <div class="col-sm">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control .text-primary" id="floatingInput"  name="location">
+                                        <label class="text-danger" for="floatingInput">Locationx</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div> 
+
+                    <!-- Row 4 -->
+                        <div class="row g-2 justify-content-center">
+                            <div class="col-sm d-flex flex-column align-items-center justify-content-center">
+                            
+                                <div class="col">
+                                    <button type="submit" id="submitButton_Add" class="btn btn-primary btn-block" >ADD RECORD</button>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
