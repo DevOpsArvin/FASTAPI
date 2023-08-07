@@ -392,6 +392,123 @@ def perform_sql2(query, data, db):
 
     return
 
+
+
+#===================================================================
+@app.post("/update_process")
+async def process_modal_form(
+                request: Request, 
+                loginU_var: str = Form(...),   
+                idrow: str = Form(...),
+                floor: str = Form(...),
+                station: str = Form(...),                           
+                port: str = Form(...), 
+                interface: str = Form(...),
+                location: str = Form(...)
+                ):
+    
+
+    print("==========================================================")
+    print("Process: CLEAR PORT")
+    print("-----------------")
+    print("ID:", idrow)
+    print("Station:", station)
+    print("Port:", port)
+    print("Interface:", interface)
+    print("Floor:", floor)
+    print("Location:", location)
+    print("-----------------")
+    print("Clear Port Performed by :", loginU_var)
+    print("==========================================================")
+
+
+    username = loginU_var
+    account_instance = UsersLoggedIn.get(username)
+    if account_instance:
+        password = account_instance.password
+    else:
+        print("Account not found.")
+
+    print("--------------------------")
+    print("USER PASSWORD:", password)
+    print("--------------------------")
+
+
+    #result = login(username, password)
+    print(f"CLEAR PORT CODE HERE....")
+
+    #   hostname = "sandbox-iosxr-1.cisco.com1"
+    hostname = f"10.16.0.{port}"
+    username = loginU_var
+    password = password
+    interface = interface
+        
+
+    # Clear Port
+    config_commands = [
+        f"interface {interface}",
+        "shutdown",
+        "no shutdown",
+        "exit",  # Exit interface configuration mode
+    ]
+
+    Xconfig_commands = [
+        "end",
+        "show ip int brief",
+    ]
+
+    print(f"457 ---  {hostname}")
+    # Do Clear Port
+    err, y= process_request(hostname, username, password, interface, config_commands)
+    print(f"460 err ===={err} ")
+    print(f"460 err ===={y} ")
+    #netmiko_manager = NetmikoManager(hostname, username, password)
+    #print(f"err446 ======== {netmiko_manager.connect()}")
+
+    if y == True:
+    # ------------------------------------------------------------------------
+        # Get the current date and time.
+        now = datetime.datetime.now()
+        # Convert the date and time to a string.
+        datestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+
+        query = 'INSERT INTO eventlog (datestamp, indexrow, station, host, interface, floor, location, actions, doneby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        data = (datestamp, idrow, station, hostname, interface, floor, location, 'CLEAR PORT', loginU_var)
+        perform_sql2(query, data,'elog.db')
+        okmsg = f"Clear Port - Successfull"
+
+    #--------------------------------------------------------------------------
+
+
+
+    results = get_mapping_results(station)
+    resultsVLAN = get_vlan_results()
+    resultsVoice = get_voice_results()
+
+    # Process the form data as needed
+    return templates.TemplateResponse(
+        "search.html",
+        {   "request": request, 
+            "results": results, 
+            "idrow": idrow, 
+            "floor": floor, 
+            "station": station, 
+            "port": port, 
+            "interface": interface, 
+            "loginU_var": loginU_var,
+            "resultsVLAN": resultsVLAN,
+            "resultsVoice": resultsVoice,
+            "error_message": err,
+            "ok_message": okmsg
+
+        }
+
+    )
+
+
+
+
+
 #===================================================================
 @app.post("/process_modal_form1")
 async def process_modal_form(
