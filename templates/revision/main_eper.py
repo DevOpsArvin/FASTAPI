@@ -801,5 +801,5 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8886)
 
     #uvicorn.run(app, host="0.0.0.0", port=8886)
-#   uvicorn main:app --reload --host 0.0.0.0 --port 8886
-# arvin 7/25/2023
+#   uvic/orn main:app --reload --host 0.0.0.0 --port 8886
+# arvin 8/8/2023
